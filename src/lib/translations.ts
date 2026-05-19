@@ -1,0 +1,212 @@
+export const languages = [
+  { code: "en", name: "English", nativeName: "English" },
+  { code: "hi", name: "Hindi", nativeName: "\u0939\u093f\u0928\u094d\u0926\u0940" },
+  { code: "mr", name: "Marathi", nativeName: "\u092e\u0930\u093e\u0920\u0940" },
+  { code: "gu", name: "Gujarati", nativeName: "\u0a97\u0ac1\u0a9c\u0ab0\u0abe\u0aa4\u0ac0" },
+  { code: "bn", name: "Bengali", nativeName: "\u09ac\u09be\u0982\u09b2\u09be" },
+  { code: "ta", name: "Tamil", nativeName: "\u0ba4\u0bae\u0bbf\u0bb4\u0bcd" },
+  { code: "te", name: "Telugu", nativeName: "\u0c24\u0c46\u0c32\u0c41\u0c17\u0c41" },
+  { code: "kn", name: "Kannada", nativeName: "\u0c95\u0ca8\u0ccd\u0ca8\u0ca1" },
+  { code: "ml", name: "Malayalam", nativeName: "\u0d2e\u0d32\u0d2f\u0d3e\u0d33\u0d02" },
+  { code: "pa", name: "Punjabi", nativeName: "\u0a2a\u0a70\u0a1c\u0a3e\u0a2c\u0a40" },
+  { code: "as", name: "Assamese", nativeName: "\u0985\u09b8\u09ae\u09c0\u09af\u09bc\u09be" },
+  { code: "or", name: "Odia", nativeName: "\u0b13\u0b21\u0b3c\u0b3f\u0b06" },
+  { code: "sa", name: "Sanskrit", nativeName: "\u0938\u0902\u0938\u094d\u0915\u0943\u0924\u092e\u094d" },
+  { code: "ur", name: "Urdu", nativeName: "\u0627\u0631\u062f\u0648" },
+  { code: "kok", name: "Konkani", nativeName: "\u0915\u094b\u0902\u0915\u0923\u0940" },
+  { code: "mai", name: "Maithili", nativeName: "\u092e\u0948\u0925\u093f\u0932\u0940" },
+  { code: "doi", name: "Dogri", nativeName: "\u0921\u094b\u0917\u0930\u0940" },
+  { code: "brx", name: "Bodo", nativeName: "\u092c\u0921\u093c\u094b" },
+  { code: "sat", name: "Santali", nativeName: "\u1c65\u1c5f\u1c71\u1c5b\u1c5f\u1c72\u1c64" },
+  { code: "ks", name: "Kashmiri", nativeName: "\u06a9\u0672\u0634\u064f\u0631" },
+  { code: "mni", name: "Manipuri", nativeName: "\u09ae\u09c8\u09a4\u09c8\u09b2\u09cb\u09a8\u09cd" },
+  { code: "ne", name: "Nepali", nativeName: "\u0928\u0947\u092a\u093e\u0932\u0940" },
+];
+
+export type LanguageCode =
+  | "en" | "hi" | "mr" | "gu" | "bn" | "ta" | "te" | "kn" | "ml" | "pa"
+  | "as" | "or" | "sa" | "ur" | "kok" | "mai" | "doi" | "brx" | "sat"
+  | "ks" | "mni" | "ne";
+
+const en = {
+  nav: {
+    dashboard: "Dashboard",
+    donate: "Donate",
+    bloodDonate: "Blood Donate",
+    scholarships: "Scholarships",
+    disasterRelief: "Disaster Relief",
+    tracking: "Live Tracking",
+    history: "History",
+    leaderboard: "Leaderboard",
+    login: "Login",
+    signup: "Join Us",
+  },
+  hero: {
+    title: "Transparent Aid. Trusted Community.",
+    subtitle: "Join SahayChain to support verified medical cases, scholarships, and disaster relief with 100% transparent fund flow.",
+    startDonating: "Start Helping",
+    raiseFunds: "Get Support",
+  },
+  stats: {
+    raised: "Total Raised",
+    lives: "Lives Impacted",
+    verified: "Verified Cases",
+    trusted: "Trusted Community",
+  },
+  auth: {
+    loginTitle: "Welcome Back",
+    signupTitle: "Join SahayChain",
+    email: "Email Address",
+    password: "Password",
+    forgotPassword: "Forgot Password?",
+    rememberMe: "Remember Me",
+    signIn: "Sign In",
+    signUp: "Create Account",
+    googleSignIn: "Sign in with Google",
+    alreadyMember: "Already a member?",
+    notMember: "Not a member yet?",
+    role: "I am a...",
+    roles: {
+      donor: "Donor",
+      requester: "Aid Requester",
+      ngo: "NGO / Verifier",
+      admin: "Administrator",
+    },
+    fullName: "Full Name",
+    mobile: "Mobile Number",
+    location: "Location",
+    uploadId: "Upload ID Proof (Aadhaar/PAN)",
+  },
+  common: {
+    secureTransactions: "Secure Transactions",
+    verified: "Verified",
+    transparent: "Transparent",
+    instantHelp: "Instant Help",
+    realTimeTracking: "Real-Time Tracking",
+  }
+};
+
+const hi = {
+  nav: {
+    dashboard: "\u0921\u0948\u0936\u092c\u094b\u0930\u094d\u0921",
+    donate: "\u0926\u093e\u0928 \u0915\u0930\u0947\u0902",
+    bloodDonate: "\u0930\u0915\u094d\u0924\u0926\u093e\u0928",
+    scholarships: "\u091b\u093e\u0924\u094d\u0930\u0935\u0943\u0924\u094d\u0924\u093f",
+    disasterRelief: "\u0906\u092a\u0926\u093e \u0930\u093e\u0939\u0924",
+    tracking: "\u0932\u093e\u0907\u0935 \u091f\u094d\u0930\u0948\u0915\u093f\u0902\u0917",
+    history: "\u0907\u0924\u093f\u0939\u093e\u0938",
+    leaderboard: "\u0932\u0940\u0921\u0930\u092c\u094b\u0930\u094d\u0921",
+    login: "\u0932\u0949\u0917\u093f\u0928",
+    signup: "\u0939\u092e\u0938\u0947 \u091c\u0941\u0921\u093c\u0947\u0902",
+  },
+  hero: {
+    title: "\u092a\u093e\u0930\u0926\u0930\u094d\u0936\u0940 \u0938\u0939\u093e\u092f\u0924\u093e\u0964 \u0935\u093f\u0936\u094d\u0935\u0938\u0928\u0940\u092f \u0938\u092e\u0941\u0926\u093e\u092f\u0964",
+    subtitle: "100% \u092a\u093e\u0930\u0926\u0930\u094d\u0936\u0940 \u092b\u0902\u0921 \u092a\u094d\u0930\u0935\u093e\u0939 \u0915\u0947 \u0938\u093e\u0925 \u0938\u0924\u094d\u092f\u093e\u092a\u093f\u0924 \u091a\u093f\u0915\u093f\u0924\u094d\u0938\u093e \u092e\u093e\u092e\u0932\u094b\u0902, \u091b\u093e\u0924\u094d\u0930\u0935\u0943\u0924\u094d\u0924\u093f\u092f\u094b\u0902 \u0914\u0930 \u0906\u092a\u0926\u093e \u0930\u093e\u0939\u0924 \u0915\u093e \u0938\u092e\u0930\u094d\u0925\u0928 \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f SahayChain \u0938\u0947 \u091c\u0941\u0921\u093c\u0947\u0902\u0964",
+    startDonating: "\u092e\u0926\u0926 \u0936\u0941\u0930\u0942 \u0915\u0930\u0947\u0902",
+    raiseFunds: "\u0938\u0939\u093e\u092f\u0924\u093e \u092a\u094d\u0930\u093e\u092a\u094d\u0924 \u0915\u0930\u0947\u0902",
+  },
+  stats: {
+    raised: "\u0915\u0941\u0932 \u091c\u0941\u091f\u093e\u092f\u093e \u0917\u092f\u093e",
+    lives: "\u092a\u094d\u0930\u092d\u093e\u0935\u093f\u0924 \u091c\u0940\u0935\u0928",
+    verified: "\u0938\u0924\u094d\u092f\u093e\u092a\u093f\u0924 \u092e\u093e\u092e\u0932\u0947",
+    trusted: "\u0935\u093f\u0936\u094d\u0935\u0938\u0928\u0940\u092f \u0938\u092e\u0941\u0926\u093e\u092f",
+  },
+  auth: {
+    loginTitle: "\u0935\u093e\u092a\u0938 \u0938\u094d\u0935\u093e\u0917\u0924 \u0939\u0948",
+    signupTitle: "SahayChain \u0938\u0947 \u091c\u0941\u0921\u093c\u0947\u0902",
+    email: "\u0908\u092e\u0947\u0932 \u092a\u0924\u093e",
+    password: "\u092a\u093e\u0938\u0935\u0930\u094d\u0921",
+    forgotPassword: "\u092a\u093e\u0938\u0935\u0930\u094d\u0921 \u092d\u0942\u0932 \u0917\u090f?",
+    rememberMe: "\u092e\u0941\u091d\u0947 \u092f\u093e\u0926 \u0930\u0916\u0947\u0902",
+    signIn: "\u0938\u093e\u0907\u0928 \u0907\u0928 \u0915\u0930\u0947\u0902",
+    signUp: "\u0916\u093e\u0924\u093e \u092c\u0928\u093e\u090f\u0902",
+    googleSignIn: "Google \u0938\u0947 \u0938\u093e\u0907\u0928 \u0907\u0928 \u0915\u0930\u0947\u0902",
+    alreadyMember: "\u092a\u0939\u0932\u0947 \u0938\u0947 \u0938\u0926\u0938\u094d\u092f \u0939\u0948\u0902?",
+    notMember: "\u0905\u092d\u0940 \u0938\u0926\u0938\u094d\u092f \u0928\u0939\u0940\u0902 \u0939\u0948\u0902?",
+    role: "\u092e\u0948\u0902 \u0939\u0942\u0902...",
+    roles: {
+      donor: "\u0926\u093e\u0924\u093e",
+      requester: "\u0938\u0939\u093e\u092f\u0924\u093e \u0906\u0935\u0947\u0926\u0915",
+      ngo: "\u090f\u0928\u091c\u0940\u0913 / \u0938\u0924\u094d\u092f\u093e\u092a\u0928\u0915\u0930\u094d\u0924\u093e",
+      admin: "\u092a\u094d\u0930\u0936\u093e\u0938\u0915",
+    },
+    fullName: "\u092a\u0942\u0930\u093e \u0928\u093e\u092e",
+    mobile: "\u092e\u094b\u092c\u093e\u0907\u0932 \u0928\u0902\u092c\u0930",
+    location: "\u0938\u094d\u0925\u093e\u0928",
+    uploadId: "\u0906\u0908\u0921\u0940 \u092a\u094d\u0930\u092e\u093e\u0923 \u0905\u092a\u0932\u094b\u0921 \u0915\u0930\u0947\u0902 (\u0906\u0927\u093e\u0930/\u092a\u0948\u0928)",
+  },
+  common: {
+    secureTransactions: "\u0938\u0941\u0930\u0915\u094d\u0937\u093f\u0924 \u0932\u0947\u0928\u0926\u0947\u0928",
+    verified: "\u0938\u0924\u094d\u092f\u093e\u092a\u093f\u0924",
+    transparent: "\u092a\u093e\u0930\u0926\u0930\u094d\u0936\u0940",
+    instantHelp: "\u0924\u0924\u094d\u0915\u093e\u0932 \u0938\u0939\u093e\u092f\u0924\u093e",
+    realTimeTracking: "\u0930\u093f\u092f\u0932-\u091f\u093e\u0907\u092e \u091f\u094d\u0930\u0948\u0915\u093f\u0902\u0917",
+  }
+};
+
+const mr = {
+  nav: {
+    dashboard: "\u0921\u0945\u0936\u092c\u094b\u0930\u094d\u0921",
+    donate: "\u0926\u093e\u0928 \u0915\u0930\u093e",
+    bloodDonate: "\u0930\u0915\u094d\u0924\u0926\u093e\u0928",
+    scholarships: "\u0936\u093f\u0937\u094d\u092f\u0935\u0943\u0924\u094d\u0924\u0940",
+    disasterRelief: "\u0906\u092a\u0924\u094d\u0924\u0940 \u092e\u0926\u0924",
+    tracking: "\u0925\u0947\u091f \u091f\u094d\u0930\u0945\u0915\u093f\u0902\u0917",
+    history: "\u0907\u0924\u093f\u0939\u093e\u0938",
+    leaderboard: "\u0932\u0940\u0921\u0930\u092c\u094b\u0930\u094d\u0921",
+    login: "\u0932\u0949\u0917\u093f\u0928",
+    signup: "\u0938\u093e\u092e\u0940\u0932 \u0935\u094d\u0939\u093e",
+  },
+  hero: {
+    title: "\u092a\u093e\u0930\u0926\u0930\u094d\u0936\u0915 \u092e\u0926\u0924. \u0935\u093f\u0936\u094d\u0935\u093e\u0938\u0942 \u0938\u092e\u0941\u0926\u093e\u092f.",
+    subtitle: "100% \u092a\u093e\u0930\u0926\u0930\u094d\u0936\u0915 \u0928\u093f\u0927\u0940 \u092a\u094d\u0930\u0935\u093e\u0939\u093e\u0938\u0939 \u0938\u0924\u094d\u092f\u093e\u092a\u093f\u0924 \u0935\u0948\u0926\u094d\u092f\u0915\u0940\u092f \u092a\u094d\u0930\u0915\u0930\u0923\u0947, \u0936\u093f\u0937\u094d\u092f\u0935\u0943\u0924\u094d\u0924\u0940 \u0906\u0923\u093f \u0906\u092a\u0924\u094d\u0924\u0940 \u092e\u0926\u0924\u0940\u0938\u093e\u0920\u0940 SahayChain \u092e\u0927\u094d\u092f\u0947 \u0938\u093e\u092e\u0940\u0932 \u0935\u094d\u0939\u093e.",
+    startDonating: "\u092e\u0926\u0924 \u0938\u0941\u0930\u0942 \u0915\u0930\u093e",
+    raiseFunds: "\u092e\u0926\u0924 \u092e\u093f\u0933\u0935\u093e",
+  },
+  stats: {
+    raised: "\u090f\u0915\u0942\u0923 \u091c\u092e\u0932\u0947\u0932\u0947",
+    lives: "\u092a\u094d\u0930\u092d\u093e\u0935\u093f\u0924 \u091c\u0940\u0935",
+    verified: "\u0938\u0924\u094d\u092f\u093e\u092a\u093f\u0924 \u092a\u094d\u0930\u0915\u0930\u0923\u0947",
+    trusted: "\u0935\u093f\u0936\u094d\u0935\u093e\u0938\u0942 \u0938\u092e\u0941\u0926\u093e\u092f",
+  },
+  auth: {
+    loginTitle: "\u092a\u0930\u0924 \u0938\u094d\u0935\u093e\u0917\u0924 \u0906\u0939\u0947",
+    signupTitle: "SahayChain \u092e\u0927\u094d\u092f\u0947 \u0938\u093e\u092e\u0940\u0932 \u0935\u094d\u0939\u093e",
+    email: "\u0908\u092e\u0947\u0932 \u092a\u0924\u094d\u0924\u093e",
+    password: "\u092a\u093e\u0938\u0935\u0930\u094d\u0921",
+    forgotPassword: "\u092a\u093e\u0938\u0935\u0930\u094d\u0921 \u0935\u093f\u0938\u0930\u0932\u093e\u0924?",
+    rememberMe: "\u092e\u0932\u093e \u0932\u0915\u094d\u0937\u093e\u0924 \u0920\u0947\u0935\u093e",
+    signIn: "\u0938\u093e\u0907\u0928 \u0907\u0928 \u0915\u0930\u093e",
+    signUp: "\u0916\u093e\u0924\u0947 \u0924\u092f\u093e\u0930 \u0915\u0930\u093e",
+    googleSignIn: "Google \u0938\u0939 \u0938\u093e\u0907\u0928 \u0907\u0928 \u0915\u0930\u093e",
+    alreadyMember: "\u0906\u0927\u0940\u091a \u0938\u0926\u0938\u094d\u092f \u0906\u0939\u093e\u0924?",
+    notMember: "\u0905\u091c\u0942\u0928 \u0938\u0926\u0938\u094d\u092f \u0928\u093e\u0939\u0940?",
+    role: "\u092e\u0940 \u0906\u0939\u0947...",
+    roles: {
+      donor: "\u0926\u093e\u0924\u093e",
+      requester: "\u092e\u0926\u0924 \u0905\u0930\u094d\u091c\u0926\u093e\u0930",
+      ngo: "\u090f\u0928\u091c\u0940\u0913 / \u0938\u0924\u094d\u092f\u093e\u092a\u0928\u0915\u0930\u094d\u0924\u093e",
+      admin: "\u092a\u094d\u0930\u0936\u093e\u0938\u0915",
+    },
+    fullName: "\u092a\u0942\u0930\u094d\u0923 \u0928\u093e\u0935",
+    mobile: "\u092e\u094b\u092c\u093e\u0907\u0932 \u0928\u0902\u092c\u0930",
+    location: "\u0938\u094d\u0925\u093e\u0928",
+    uploadId: "\u0906\u092f\u0921\u0940 \u092a\u0941\u0930\u093e\u0935\u093e \u0905\u092a\u0932\u094b\u0921 \u0915\u0930\u093e (\u0906\u0927\u093e\u0930/\u092a\u0945\u0928)",
+  },
+  common: {
+    secureTransactions: "\u0938\u0941\u0930\u0915\u094d\u0937\u093f\u0924 \u0935\u094d\u092f\u0935\u0939\u093e\u0930",
+    verified: "\u0938\u0924\u094d\u092f\u093e\u092a\u093f\u0924",
+    transparent: "\u092a\u093e\u0930\u0926\u0930\u094d\u0936\u0915",
+    instantHelp: "\u0924\u093e\u0924\u094d\u0915\u093e\u0933 \u092e\u0926\u0924",
+    realTimeTracking: "\u0930\u093f\u0905\u0932-\u091f\u093e\u0907\u092e \u091f\u094d\u0930\u0945\u0915\u093f\u0902\u0917",
+  }
+};
+
+export const translations: Record<string, any> = {
+  en,
+  hi,
+  mr,
+  gu: en, bn: en, ta: en, te: en, kn: en, ml: en, pa: en, as: en, or: en,
+  sa: en, ur: en, kok: en, mai: en, doi: en, brx: en, sat: en, ks: en,
+  mni: en, ne: en
+};
