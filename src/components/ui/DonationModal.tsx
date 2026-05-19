@@ -150,17 +150,17 @@ export function DonationModal({ selectedCase, onClose }: DonationModalProps) {
           initial={{ opacity: 0, scale: 0.9, y: 40 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 40 }}
-          className="relative w-full max-w-xl glass-card rounded-[4rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] border border-white/10"
+          className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto glass-card rounded-[2.5rem] sm:rounded-[4rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] border border-white/10 no-scrollbar"
         >
           <button
             onClick={handleClose}
-            className="absolute top-8 right-8 p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-all hover:rotate-90"
+            className="absolute top-4 right-4 sm:top-8 sm:right-8 p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-all hover:rotate-90 z-20"
           >
             <X className="w-6 h-6" />
           </button>
           
           {!isSuccess ? (
-            <div className="p-12 md:p-16">
+            <div className="p-6 sm:p-12 md:p-16">
               <div className="flex items-center space-x-4 mb-10">
                 <div className="w-14 h-14 bg-blue-600/10 rounded-2xl flex items-center justify-center text-blue-600">
                   <Heart className="w-8 h-8 fill-current" />
@@ -238,7 +238,7 @@ export function DonationModal({ selectedCase, onClose }: DonationModalProps) {
               </div>
             </div>
           ) : (
-            <div className="p-16 text-center">
+            <div className="p-6 sm:p-12 md:p-16 text-center">
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}

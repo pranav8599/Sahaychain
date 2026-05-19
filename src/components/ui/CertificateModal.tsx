@@ -63,8 +63,10 @@ export function CertificateModal({ data, onClose }: CertificateModalProps) {
         </div>
 
         {/* Certificate Container */}
-        <div className="overflow-y-auto no-scrollbar rounded-sm print:overflow-visible flex-grow shadow-2xl">
-           <Certificate data={data} />
+        <div className="overflow-x-auto overflow-y-auto no-scrollbar rounded-sm print:overflow-visible flex-grow shadow-2xl w-full">
+          <div className="min-w-[650px] w-full print:min-w-0">
+             <Certificate data={data} />
+          </div>
         </div>
       </motion.div>
     </div>

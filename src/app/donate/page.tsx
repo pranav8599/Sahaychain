@@ -138,13 +138,13 @@ export default function DonatePage() {
                   className="w-full pl-16 pr-6 py-6 rounded-[2rem] border border-white/10 glass-card focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-lg font-medium transition-all"
                 />
               </div>
-              <div className="flex gap-4">
-                <button className="flex items-center space-x-3 px-10 py-6 glass-card rounded-[2rem] font-black uppercase tracking-widest text-xs hover:bg-slate-50 dark:hover:bg-slate-900 transition-all border border-white/10">
-                  <Filter className="w-5 h-5" />
+              <div className="flex gap-4 w-full sm:w-auto">
+                <button className="flex items-center justify-center space-x-2 px-6 sm:px-10 py-4 sm:py-6 glass-card rounded-[2rem] font-black uppercase tracking-widest text-[10px] sm:text-xs hover:bg-slate-50 dark:hover:bg-slate-900 transition-all border border-white/10 flex-1 sm:flex-initial">
+                  <Filter className="w-4 h-4 sm:w-5 h-5" />
                   <span>Filter</span>
                 </button>
-                <button className="flex items-center space-x-3 px-10 py-6 bg-blue-600 text-white rounded-[2rem] font-black uppercase tracking-widest text-xs hover:bg-blue-700 transition-all shadow-2xl shadow-blue-500/20">
-                  <Zap className="w-5 h-5" />
+                <button className="flex items-center justify-center space-x-2 px-6 sm:px-10 py-4 sm:py-6 bg-blue-600 text-white rounded-[2rem] font-black uppercase tracking-widest text-[10px] sm:text-xs hover:bg-blue-700 transition-all shadow-2xl shadow-blue-500/20 flex-1 sm:flex-initial">
+                  <Zap className="w-4 h-4 sm:w-5 h-5" />
                   <span>Quick Help</span>
                 </button>
               </div>
