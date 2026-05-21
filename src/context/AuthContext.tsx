@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { SessionProvider, useSession, signIn, signOut } from "next-auth/react";
 import { fetchWithRetry } from "@/lib/utils";
 
 export type UserRole = "Donor" | "Requester" | "NGO" | "Admin";
@@ -15,6 +16,8 @@ interface User {
   location?: string;
   walletAddress?: string;
   upiId?: string;
+  trustScore?: number;
+  impactScore?: number;
 }
 
 interface AuthContextType {
@@ -29,49 +32,46 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
+function AuthProviderInner({ children }: { children: React.ReactNode }) {
+  const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    const initAuth = () => {
-      try {
-        const savedUser = localStorage.getItem("sahaychain_user");
-        if (savedUser) {
-          setUser(JSON.parse(savedUser));
-        }
-      } catch (error) {
-        console.error("Auth initialization failed:", error);
-      } finally {
-        setIsInitialized(true);
-      }
-    };
-
-    initAuth();
-  }, []);
+  const user = session?.user ? {
+    id: (session.user as any).id,
+    fullName: session.user.name || "",
+    email: session.user.email || "",
+    role: (session.user as any).role || "USER",
+    profileImage: session.user.image || "",
+    trustScore: (session.user as any).trustScore || 100,
+    impactScore: (session.user as any).impactScore || 0,
+  } as User : null;
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const res = await fetchWithRetry("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+      const res = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
       });
-      if (res.ok) {
-        const userData = await res.json();
-        setUser(userData);
-        localStorage.setItem("sahaychain_user", JSON.stringify(userData));
-        router.push("/dashboard");
+
+      if (res?.error) {
+        console.error("Login failed:", res.error);
+        
+        // If email not verified, we can handle it specifically
+        if (res.error.includes("Email not verified")) {
+          alert("Your email is not verified. Redirecting to verification...");
+          router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
+        } else {
+          alert(`Login Failed: ${res.error}`);
+        }
       } else {
-        const errorData = await res.json();
-        console.error("Login failed:", errorData.error || res.statusText);
-        alert(`Login Failed: ${errorData.error || "Please check your credentials"}`);
+        router.push("/dashboard");
       }
     } catch (e) {
       console.error(e);
+      alert("An unexpected error occurred during login.");
     } finally {
       setIsLoading(false);
     }
@@ -91,9 +91,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }),
       });
       if (res.ok) {
-        // Redirect to login page instead of auto-logging in
-        alert("Account created successfully! Please log in with your new credentials.");
-        router.push("/login");
+        const responseData = await res.json();
+        if (responseData.requiresOtp) {
+          router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`);
+        } else {
+          router.push("/login");
+        }
       } else {
         const errorData = await res.json();
         console.error("Signup failed:", errorData.error || res.statusText);
@@ -107,9 +110,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("sahaychain_user");
+  const logout = async () => {
+    await signOut({ redirect: false });
     router.push("/");
   };
 
@@ -120,11 +122,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signup, 
       logout, 
       isAuthenticated: !!user, 
-      isLoading,
-      isInitialized 
+      isLoading: isLoading || status === "loading",
+      isInitialized: status !== "loading"
     }}>
       {children}
     </AuthContext.Provider>
+  );
+}
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <SessionProvider>
+      <AuthProviderInner>{children}</AuthProviderInner>
+    </SessionProvider>
   );
 }
 

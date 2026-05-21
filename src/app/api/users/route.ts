@@ -21,10 +21,29 @@ export async function POST(request: Request) {
       },
     });
 
+    // Generate a 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Store the OTP in the database, valid for 10 minutes
+    await prisma.verificationToken.create({
+      data: {
+        identifier: email,
+        token: otp,
+        expires: new Date(Date.now() + 10 * 60 * 1000),
+      },
+    });
+
+    // In a real application, send the OTP via email here.
+    // For this hackathon/demo, we print it to the server console:
+    console.log(`\n\n=========================================`);
+    console.log(`🚀 NEW USER SIGNUP OTP: ${otp}`);
+    console.log(`📧 EMAIL: ${email}`);
+    console.log(`=========================================\n\n`);
+
     // Exclude passwordHash from response
     const { passwordHash: _, ...safeUser } = user;
 
-    return NextResponse.json(safeUser, { status: 201 });
+    return NextResponse.json({ ...safeUser, requiresOtp: true }, { status: 201 });
   } catch (error: any) {
     // Handle unique constraint violations (e.g. email or wallet exists)
     if (error.code === 'P2002') {
