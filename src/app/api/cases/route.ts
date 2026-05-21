@@ -10,6 +10,7 @@ export async function GET() {
           select: {
             upiId: true,
             fullName: true,
+            walletAddress: true,
           }
         }
       }

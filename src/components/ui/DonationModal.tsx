@@ -20,9 +20,96 @@ export function DonationModal({ selectedCase, onClose }: DonationModalProps) {
   const [isDonating, setIsDonating] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [currentCertificate, setCurrentCertificate] = useState<CertificateData | null>(null);
+  
+  // Tab control and Receipt state
+  const [paymentMethod, setPaymentMethod] = useState<"gasless" | "fiat">("gasless");
+  const [receipt, setReceipt] = useState<{ hash: string; walletAddress: string; status: string } | null>(null);
 
-  const { simulateTransaction } = useUGF();
+  const { 
+    isWalletConnected, 
+    walletAddress, 
+    connectWallet, 
+    isUgfAuthenticated, 
+    loginUGF, 
+    executeGaslessDonation,
+    mockUsdBalance 
+  } = useUGF();
   const { user } = useAuth();
+
+  const handleConnect = async () => {
+    try {
+      setIsDonating(true);
+      await connectWallet();
+    } catch (err: any) {
+      alert(err.message || "Failed to connect MetaMask");
+    } finally {
+      setIsDonating(false);
+    }
+  };
+
+  const handleSignAuth = async () => {
+    try {
+      setIsDonating(true);
+      await loginUGF();
+    } catch (err: any) {
+      alert(err.message || "Failed to sign login message");
+    } finally {
+      setIsDonating(false);
+    }
+  };
+
+  const handleGaslessDonationSubmit = async () => {
+    if (!donationAmount || isNaN(Number(donationAmount))) return;
+    setIsDonating(true);
+
+    try {
+      // Execute the gasless token transfer via UGF SDK (on Sepolia network)
+      const txReceipt = await executeGaslessDonation(
+        selectedCase.creator?.walletAddress || selectedCase.creatorWalletAddress || "0x6E17C2F9F6eE8cC9d404F32371D7981504fe084e", // beneficiary target
+        donationAmount
+      );
+
+      setReceipt(txReceipt);
+
+      // Call backend to record the transaction and generate the certificate in the database
+      const saveRes = await fetchWithRetry("/api/donations/gasless", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: donationAmount,
+          txHash: txReceipt.hash,
+          walletAddress: txReceipt.walletAddress,
+          chainId: 11155111, // Standard Sepolia for this SDK demo or Base Sepolia
+          caseId: selectedCase.id,
+          userId: user?.id,
+        }),
+      });
+
+      const saveData = await saveRes.json();
+      if (!saveRes.ok) {
+        throw new Error(saveData.error || "Failed to record donation in database");
+      }
+
+      // Generate verifiable certificate
+      const certData: CertificateData = {
+        id: saveData.certificateId || "CERT-" + Math.random().toString(36).substr(2, 9).toUpperCase(),
+        donorId: user?.id || "anon",
+        donorName: user?.fullName || "Anonymous Hero",
+        amount: Number(donationAmount),
+        beneficiaryName: selectedCase.title,
+        date: new Date().toLocaleDateString(),
+        txHash: txReceipt.hash,
+      };
+
+      setCurrentCertificate(certData);
+      setIsSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      alert("Donation Failed: " + (err.message || err));
+    } finally {
+      setIsDonating(false);
+    }
+  };
 
   const handleRazorpayPayment = async () => {
     if (!donationAmount || isNaN(Number(donationAmount))) return;
@@ -68,15 +155,19 @@ export function DonationModal({ selectedCase, onClose }: DonationModalProps) {
               amount: donationAmount,
               caseId: selectedCase.id,
               userId: user?.id,
-              walletAddress: user?.walletAddress,
+              walletAddress: user?.walletAddress || walletAddress,
             }),
           });
 
           const verifyData = await verifyRes.json();
 
           if (verifyRes.ok) {
-            // Simulate UGF Gasless Transaction
-            const txResult = await simulateTransaction("Gasless Donation to " + selectedCase.title);
+            // Receipt representation for fiat
+            setReceipt({
+              hash: verifyData.txHash || `fiat_${Date.now()}`,
+              walletAddress: walletAddress || "0xAnonymous",
+              status: "success",
+            });
 
             // Generate Certificate
             const certData: CertificateData = {
@@ -86,7 +177,7 @@ export function DonationModal({ selectedCase, onClose }: DonationModalProps) {
               amount: Number(donationAmount),
               beneficiaryName: selectedCase.title,
               date: new Date().toLocaleDateString(),
-              txHash: txResult.hash || verifyData.txHash,
+              txHash: verifyData.txHash,
             };
             
             setCurrentCertificate(certData);
@@ -132,6 +223,7 @@ export function DonationModal({ selectedCase, onClose }: DonationModalProps) {
     setIsSuccess(false);
     setDonationAmount("");
     setCurrentCertificate(null);
+    setReceipt(null);
     onClose();
   };
 
@@ -169,6 +261,34 @@ export function DonationModal({ selectedCase, onClose }: DonationModalProps) {
                   <h2 className="text-3xl font-black tracking-tight">Impact Contribution</h2>
                   <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-1">Secure Transaction Protocol</p>
                 </div>
+              </div>
+
+              {/* Payment Method Selector Tab */}
+              <div className="flex border border-slate-200 dark:border-slate-800 mb-8 p-1 bg-slate-100 dark:bg-slate-900/50 rounded-2xl">
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("gasless")}
+                  className={cn(
+                    "flex-1 py-3 text-center rounded-xl font-bold text-xs uppercase tracking-widest transition-all",
+                    paymentMethod === "gasless"
+                      ? "bg-white dark:bg-slate-800 text-blue-600 shadow-sm"
+                      : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+                  )}
+                >
+                  ⚡ Gasless Web3
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("fiat")}
+                  className={cn(
+                    "flex-1 py-3 text-center rounded-xl font-bold text-xs uppercase tracking-widest transition-all",
+                    paymentMethod === "fiat"
+                      ? "bg-white dark:bg-slate-800 text-blue-600 shadow-sm"
+                      : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+                  )}
+                >
+                  💳 Card / UPI
+                </button>
               </div>
 
               <div className="mb-10 p-8 bg-slate-50 dark:bg-slate-900/50 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 flex items-center gap-6">
@@ -214,27 +334,102 @@ export function DonationModal({ selectedCase, onClose }: DonationModalProps) {
                   </div>
                 </div>
 
-                <div className="p-8 bg-blue-600/5 rounded-[2.5rem] border border-blue-600/10 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold text-slate-400">Network Gas Fee (UGF)</span>
-                    <span className="px-3 py-1 bg-emerald-500/10 text-emerald-600 rounded-lg text-[10px] font-black uppercase tracking-widest">Sponsored</span>
-                  </div>
-                  <div className="flex items-center justify-between pt-4 border-t border-blue-600/10">
-                    <span className="text-lg font-black">Total Commitment</span>
-                    <span className="text-3xl font-black text-blue-600">₹{donationAmount || "0"}</span>
-                  </div>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-2">
-                    * Certificate generated immediately after secure payment.
-                  </p>
-                </div>
+                {paymentMethod === "gasless" ? (
+                  <div className="p-8 bg-blue-600/5 rounded-[2.5rem] border border-blue-600/10 space-y-6">
+                    <div className="flex justify-between items-center text-sm font-bold text-slate-400">
+                      <span>Mock USD Wallet Balance</span>
+                      <span className="text-blue-600 font-extrabold">₹{mockUsdBalance}</span>
+                    </div>
 
-                <button
-                  onClick={handleRazorpayPayment}
-                  disabled={!donationAmount || isDonating}
-                  className="w-full py-6 bg-blue-600 text-white rounded-[2rem] font-black text-xl hover:bg-blue-700 transition-all shadow-[0_20px_40px_-10px_rgba(37,99,235,0.4)] flex items-center justify-center space-x-4 disabled:opacity-50 hover:-translate-y-1 active:translate-y-0"
-                >
-                  {isDonating ? <span>Processing...</span> : <span>Proceed to Secure Payment</span>}
-                </button>
+                    <div className="space-y-3">
+                      {/* Step 1: Wallet Connection */}
+                      <div className="flex items-center justify-between p-3.5 rounded-xl bg-white dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
+                        <div className="flex items-center gap-3">
+                          <span className={cn(
+                            "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold",
+                            isWalletConnected ? "bg-emerald-500 text-white" : "bg-blue-600/10 text-blue-600"
+                          )}>
+                            1
+                          </span>
+                          <span className="text-sm font-bold">Connect MetaMask</span>
+                        </div>
+                        <span className="text-xs font-semibold text-slate-400">
+                          {isWalletConnected ? `${walletAddress?.slice(0, 6)}...${walletAddress?.slice(-4)}` : "Disconnected"}
+                        </span>
+                      </div>
+
+                      {/* Step 2: Signature Authentication */}
+                      <div className="flex items-center justify-between p-3.5 rounded-xl bg-white dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
+                        <div className="flex items-center gap-3">
+                          <span className={cn(
+                            "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold",
+                            isUgfAuthenticated ? "bg-emerald-500 text-white" : "bg-blue-600/10 text-blue-600"
+                          )}>
+                            2
+                          </span>
+                          <span className="text-sm font-bold">Sign Security Auth</span>
+                        </div>
+                        <span className="text-xs font-semibold text-slate-400">
+                          {isUgfAuthenticated ? "Authorized" : "Awaiting Sign"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-8 bg-blue-600/5 rounded-[2.5rem] border border-blue-600/10 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-slate-400">Network Gas Fee (UGF)</span>
+                      <span className="px-3 py-1 bg-emerald-500/10 text-emerald-600 rounded-lg text-[10px] font-black uppercase tracking-widest">Sponsored</span>
+                    </div>
+                    <div className="flex items-center justify-between pt-4 border-t border-blue-600/10">
+                      <span className="text-lg font-black">Total Commitment</span>
+                      <span className="text-3xl font-black text-blue-600">₹{donationAmount || "0"}</span>
+                    </div>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-2">
+                      * Certificate generated immediately after secure payment.
+                    </p>
+                  </div>
+                )}
+
+                {paymentMethod === "gasless" ? (
+                  !isWalletConnected ? (
+                    <button
+                      type="button"
+                      onClick={handleConnect}
+                      disabled={isDonating}
+                      className="w-full py-6 bg-blue-600 text-white rounded-[2rem] font-black text-xl hover:bg-blue-700 transition-all shadow-[0_20px_40px_-10px_rgba(37,99,235,0.4)] flex items-center justify-center space-x-4 hover:-translate-y-1 active:translate-y-0"
+                    >
+                      {isDonating ? <span>Connecting...</span> : <span>1. Connect MetaMask Wallet</span>}
+                    </button>
+                  ) : !isUgfAuthenticated ? (
+                    <button
+                      type="button"
+                      onClick={handleSignAuth}
+                      disabled={isDonating}
+                      className="w-full py-6 bg-blue-600 text-white rounded-[2rem] font-black text-xl hover:bg-blue-700 transition-all shadow-[0_20px_40px_-10px_rgba(37,99,235,0.4)] flex items-center justify-center space-x-4 hover:-translate-y-1 active:translate-y-0"
+                    >
+                      {isDonating ? <span>Signing...</span> : <span>2. Sign Security Auth Message</span>}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleGaslessDonationSubmit}
+                      disabled={!donationAmount || isDonating}
+                      className="w-full py-6 bg-emerald-600 text-white rounded-[2rem] font-black text-xl hover:bg-emerald-700 transition-all shadow-[0_20px_40px_-10px_rgba(16,185,129,0.4)] flex items-center justify-center space-x-4 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50"
+                    >
+                      {isDonating ? <span>Processing Gasless Tx...</span> : <span>Donate Gaslessly (Mock USD)</span>}
+                    </button>
+                  )
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleRazorpayPayment}
+                    disabled={!donationAmount || isDonating}
+                    className="w-full py-6 bg-blue-600 text-white rounded-[2rem] font-black text-xl hover:bg-blue-700 transition-all shadow-[0_20px_40px_-10px_rgba(37,99,235,0.4)] flex items-center justify-center space-x-4 disabled:opacity-50 hover:-translate-y-1 active:translate-y-0"
+                  >
+                    {isDonating ? <span>Processing...</span> : <span>Proceed to Secure Payment</span>}
+                  </button>
+                )}
               </div>
             </div>
           ) : (
@@ -247,13 +442,32 @@ export function DonationModal({ selectedCase, onClose }: DonationModalProps) {
                 <CheckCircle2 className="w-14 h-14 text-white" />
               </motion.div>
               <h2 className="text-5xl font-black mb-6 tracking-tight">Payment Successful!</h2>
-              <p className="text-slate-500 text-lg font-medium mb-12 leading-relaxed">
+              <p className="text-slate-500 text-lg font-medium mb-8 leading-relaxed">
                 Your secure contribution of <span className="text-blue-600 font-black">₹{donationAmount}</span> was successful.
                 An on-chain transaction via UGF has been recorded and your certificate is ready.
               </p>
 
+              {/* Receipt System Display */}
+              {receipt && (
+                <div className="p-6 mb-8 text-left bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl space-y-3 font-mono text-xs text-slate-500 dark:text-slate-400">
+                  <div className="flex justify-between">
+                    <span className="font-bold">Protocol Status:</span>
+                    <span className="text-emerald-500 uppercase font-black">{receipt.status}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-bold">Payer Address:</span>
+                    <span className="truncate max-w-[180px]" title={receipt.walletAddress}>{receipt.walletAddress}</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-bold mb-1">Transaction Hash:</span>
+                    <span className="text-[10px] break-all text-blue-600 dark:text-blue-400">{receipt.hash}</span>
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-4">
                 <button
+                  type="button"
                   onClick={handleClose}
                   className="w-full py-6 bg-blue-600 text-white rounded-[2rem] font-black text-xl hover:scale-105 transition-all shadow-xl shadow-blue-600/20"
                 >
