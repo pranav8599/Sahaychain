@@ -26,3 +26,45 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get("userId");
+
+    if (!userId) {
+      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+    }
+
+    const donations = await prisma.donation.findMany({
+      where: {
+        userId,
+        status: {
+          in: ["SUCCESS", "VERIFIED"],
+        },
+      },
+      include: {
+        case: {
+          select: {
+            title: true,
+          },
+        },
+        certificate: true,
+        user: {
+          select: {
+            fullName: true,
+            walletAddress: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return NextResponse.json(donations);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+

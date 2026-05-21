@@ -35,6 +35,7 @@ export function DonationModal({ selectedCase, onClose }: DonationModalProps) {
     mockUsdBalance 
   } = useUGF();
   const { user } = useAuth();
+  const { refreshCertificates } = useCertificate();
 
   const handleConnect = async () => {
     try {
@@ -103,6 +104,7 @@ export function DonationModal({ selectedCase, onClose }: DonationModalProps) {
 
       setCurrentCertificate(certData);
       setIsSuccess(true);
+      refreshCertificates().catch((err) => console.error("Failed to refresh certificates:", err));
     } catch (err: any) {
       console.error(err);
       alert("Donation Failed: " + (err.message || err));
@@ -182,6 +184,7 @@ export function DonationModal({ selectedCase, onClose }: DonationModalProps) {
             
             setCurrentCertificate(certData);
             setIsSuccess(true);
+            refreshCertificates().catch((err) => console.error("Failed to refresh certificates:", err));
           } else {
             alert("Payment verification failed. Please contact support.");
           }

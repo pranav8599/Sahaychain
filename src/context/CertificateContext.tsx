@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useAuth } from "./AuthContext";
+import { fetchWithRetry } from "@/lib/utils";
 
 export interface CertificateData {
   id: string;
@@ -20,6 +21,7 @@ interface CertificateContextType {
   generateCertificate: (data: Omit<CertificateData, "id" | "date">) => CertificateData;
   getUserCertificates: (userId: string) => CertificateData[];
   getCertificateById: (id: string) => CertificateData | undefined;
+  refreshCertificates: () => Promise<void>;
 }
 
 const CertificateContext = createContext<CertificateContextType | null>(null);
@@ -28,16 +30,61 @@ export function CertificateProvider({ children }: { children: React.ReactNode })
   const [certificates, setCertificates] = useState<CertificateData[]>([]);
   const { user } = useAuth();
 
+  const refreshCertificates = React.useCallback(async () => {
+    if (!user?.id) {
+      setCertificates([]);
+      return;
+    }
+
+    try {
+      const res = await fetchWithRetry(`/api/donations?userId=${user.id}`);
+      if (res.ok) {
+        const donations = await res.json();
+        const dbCertificates: CertificateData[] = donations.map((d: any) => ({
+          id: d.certificate?.id || `CERT-${d.id}`,
+          donorId: d.userId || "",
+          donorName: d.user?.fullName || "Anonymous Donor",
+          donorWallet: d.walletAddress || d.user?.walletAddress || "",
+          beneficiaryName: d.case?.title || "Unknown Cause",
+          beneficiaryId: d.caseId,
+          amount: d.amount,
+          date: d.createdAt,
+          txHash: d.txHash || d.razorpayPaymentId || `TX-${d.id}`,
+        }));
+        setCertificates(dbCertificates);
+        
+        // Backwards compatibility with any legacy local items
+        try {
+          localStorage.setItem("sahaychain_certificates", JSON.stringify(dbCertificates));
+        } catch (storageErr) {
+          console.warn("Could not save to localStorage:", storageErr);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load certificates from database:", e);
+    }
+  }, [user?.id]);
+
   useEffect(() => {
+    // Initial load from local storage as placeholder/quick-render
     try {
       const saved = localStorage.getItem("sahaychain_certificates");
       if (saved) {
         setCertificates(JSON.parse(saved));
       }
     } catch (e) {
-      console.error("Failed to load certificates", e);
+      console.error("Failed to load certificates from local storage", e);
     }
   }, []);
+
+  // Fetch certificates from the database as soon as user ID is available or changes
+  useEffect(() => {
+    if (user?.id) {
+      refreshCertificates();
+    } else {
+      setCertificates([]);
+    }
+  }, [user?.id, refreshCertificates]);
 
   const generateCertificate = (data: Omit<CertificateData, "id" | "date">) => {
     const newCert: CertificateData = {
@@ -48,7 +95,11 @@ export function CertificateProvider({ children }: { children: React.ReactNode })
 
     const updated = [newCert, ...certificates];
     setCertificates(updated);
-    localStorage.setItem("sahaychain_certificates", JSON.stringify(updated));
+    try {
+      localStorage.setItem("sahaychain_certificates", JSON.stringify(updated));
+    } catch (storageErr) {
+      console.warn("Could not save to localStorage:", storageErr);
+    }
     return newCert;
   };
 
@@ -67,6 +118,7 @@ export function CertificateProvider({ children }: { children: React.ReactNode })
         generateCertificate,
         getUserCertificates,
         getCertificateById,
+        refreshCertificates,
       }}
     >
       {children}
@@ -81,3 +133,4 @@ export const useCertificate = () => {
   }
   return context;
 };
+
