@@ -4,6 +4,11 @@ import { prisma } from "@/lib/prisma";
 export async function GET() {
   try {
     const cases = await prisma.case.findMany({
+      where: {
+        goal: {
+          gt: 0
+        }
+      },
       orderBy: { createdAt: "desc" },
       include: {
         creator: {
@@ -26,12 +31,21 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { title, description, category, goal, location, imageUrl, creatorId } = body;
 
+    if (!title || !description || !location || !creatorId) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    const goalNumber = Number(goal);
+    if (isNaN(goalNumber) || goalNumber <= 0) {
+      return NextResponse.json({ error: "Funding goal must be a positive amount greater than 0" }, { status: 400 });
+    }
+
     const newCase = await prisma.case.create({
       data: {
         title,
         description,
         category,
-        goal: Number(goal),
+        goal: goalNumber,
         location,
         imageUrl,
         creatorId, // assuming creatorId is passed (in a real app, extract from session)

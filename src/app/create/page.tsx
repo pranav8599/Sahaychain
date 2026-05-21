@@ -30,6 +30,7 @@ export default function CreateCasePage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -44,6 +45,29 @@ export default function CreateCasePage() {
   const router = useRouter();
 
   const handleNext = () => {
+    setValidationError(null);
+
+    // Validation for Step 0 (Details)
+    if (currentStep === 0) {
+      if (!formData.title.trim()) {
+        setValidationError("Please enter a title for your fundraising case.");
+        return;
+      }
+      if (!formData.location.trim()) {
+        setValidationError("Please enter a location.");
+        return;
+      }
+      const goalNum = Number(formData.goal);
+      if (!formData.goal || isNaN(goalNum) || goalNum <= 0) {
+        setValidationError("Funding goal must be a positive amount greater than 0.");
+        return;
+      }
+      if (!formData.description.trim()) {
+        setValidationError("Please share the story / description for the case.");
+        return;
+      }
+    }
+
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -52,6 +76,7 @@ export default function CreateCasePage() {
   };
 
   const handleBack = () => {
+    setValidationError(null);
     if (currentStep > 0) setCurrentStep(currentStep - 1);
   };
 
@@ -139,6 +164,16 @@ export default function CreateCasePage() {
                     exit={{ opacity: 0, x: -20 }}
                     className="space-y-6"
                   >
+                    {validationError && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="p-4 text-sm text-rose-500 bg-rose-500/10 border border-rose-500/20 rounded-2xl flex items-center space-x-2 font-semibold"
+                      >
+                        <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                        <span>{validationError}</span>
+                      </motion.div>
+                    )}
                     {currentStep === 0 && (
                       <div className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
